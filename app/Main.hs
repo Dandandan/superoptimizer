@@ -2,7 +2,7 @@
 import Data.Int
 import Data.Bits
 import qualified Data.Set as Set
-import Data.List (find)
+import Data.List (find, intercalate)
 
 data Instruction
     = Push Int8
@@ -66,7 +66,6 @@ addOne :: Instruction -> Program -> [Program]
 addOne i [] = [[i]]
 addOne i p@(x:xs) = (i:p): map (x:) (addOne i xs)
 
-
 expand :: Program -> [Program]
 expand p = concatMap (\b -> map (b:) (concatMap (\c -> addOne c p) vars)) binary
 
@@ -95,5 +94,16 @@ findSmallest t = find (\p -> createTrace p == t) computeAll
         
 findExample = findSmallest ((map (\i -> i ^ 4 + 1)) [(-128)..127]::[Int8])
 
+
+printProgram :: Program -> String
+printProgram program = 
+    let
+        trace = map show $ createTrace program
+
+    in
+        intercalate ","  trace ++ ":"  ++ show program
+
 main :: IO ()
-main = print findExample
+main = 
+    mapM_ (putStrLn . printProgram) computeAll
+
